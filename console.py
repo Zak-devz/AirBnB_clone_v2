@@ -19,16 +19,25 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
+        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+        'State': State, 'City': City, 'Amenity': Amenity,
+        'Review': Review
+    }
+    valid_keys = {
+        'BaseModel': ['id', 'created_at', 'updated_at'],
+        'User': ['id', 'created_at', 'updated_at',  'email', 'password', 'first_name', 'last_name'],
+        'City': ['id', 'created_at', 'updated_at', 'state_id', 'name'],
+        'State': ['id', 'created_at', 'updated_at', 'name'],
+        'Place': ['id', 'created_at', 'updated_at', 'city_id', 'user_id', 'name', 'number_rooms', 'number_bathrooms', 'max_guest', 'price_by_night', 'latitude', 'longitude'],
+        'Amenity': ['id', 'created_at', 'updated_at', 'name'],
+        'Review': ['id', 'created_at', 'updated_at', 'place_id', 'user_id', 'text']
+    }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
-             'number_rooms': int, 'number_bathrooms': int,
-             'max_guest': int, 'price_by_night': int,
-             'latitude': float, 'longitude': float
-            }
+        'number_rooms': int, 'number_bathrooms': int,
+        'max_guest': int, 'price_by_night': int,
+        'latitude': float, 'longitude': float
+    }
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -73,7 +82,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -113,15 +122,55 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
+    def parse_value(self, value):
+        """cast string to float or int if possible"""
+        is_valid_value = True
+        # To be a valid string it must be of at least length 2 i.e. ""
+        # To be a valid string it must begin and end with double quoatation i.e. "sdsds"
+        if len(value) >= 2 and value[0] == '"' and value[len(value) - 1] == '"':
+            value = value[1:-1]
+            value = value.replace('_', ' ')
+            value = value.replace('"', '\"')
+        else:
+            try:
+                if "." in value:
+                    value = float(value)
+                else:
+                    value = int(value)
+            except ValueError:
+                is_valid_value = False
+
+        if is_valid_value:
+            return value
+        else:
+            return None
+        
     def do_create(self, args):
         """ Create an object of any class"""
         if not args:
             print("** class name missing **")
             return
         elif args not in HBNBCommand.classes:
+        args_array = args.split()
+        class_name = args_array[0]
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
         new_instance = HBNBCommand.classes[args]()
+        dict_params = {}
+        for param_index in range(1, len(args_array)):
+            param_array = args_array[param_index].split("=")
+            if len(param_array) == 2:
+                key = param_array[0]
+                if key not in HBNBCommand.valid_keys[class_name]:
+                    continue
+                value = self.parse_value(param_array[1])
+                if value is not None:
+                    dict_params[key] = value
+            else:
+                pass
+
+        new_instance = HBNBCommand.classes[class_name](**dict_params)
         storage.save()
         print(new_instance.id)
         storage.save()
@@ -187,7 +236,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -320,5 +369,7 @@ class HBNBCommand(cmd.Cmd):
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
 
+
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
+
