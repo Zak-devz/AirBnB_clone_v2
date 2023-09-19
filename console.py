@@ -25,12 +25,31 @@ class HBNBCommand(cmd.Cmd):
     }
     valid_keys = {
         'BaseModel': ['id', 'created_at', 'updated_at'],
-        'User': ['id', 'created_at', 'updated_at',  'email', 'password', 'first_name', 'last_name'],
+        'User': [
+            'id',
+            'created_at',
+            'updated_at',
+            'email',
+            'password',
+            'first_name',
+            'last_name'],
         'City': ['id', 'created_at', 'updated_at', 'state_id', 'name'],
         'State': ['id', 'created_at', 'updated_at', 'name'],
-        'Place': ['id', 'created_at', 'updated_at', 'city_id', 'user_id', 'name', 'number_rooms', 'number_bathrooms', 'max_guest', 'price_by_night', 'latitude', 'longitude'],
+        'Place': [
+            'id',
+            'created_at'
+            'updated_at',
+            'city_id', 'user_id',
+            'name',
+            'number_rooms',
+            'number_bathrooms',
+            'max_guest',
+            'price_by_night',
+            'latitude',
+            'longitude'],
         'Amenity': ['id', 'created_at', 'updated_at', 'name'],
-        'Review': ['id', 'created_at', 'updated_at', 'place_id', 'user_id', 'text']
+        'Review': ['id', 'created_at', 'updated_at',
+                   'place_id', 'user_id', 'text']
     }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
@@ -123,14 +142,14 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def parse_value(self, value):
-        """cast string to float or int if possible"""
+        """Attempt to cast string to float or int"""
         is_valid_value = True
-        # To be a valid string it must be of at least length 2 i.e. ""
-        # To be a valid string it must begin and end with double quoatation i.e. "sdsds"
-        if len(value) >= 2 and value[0] == '"' and value[len(value) - 1] == '"':
+        # A valid string must have a minimum length of 2 characters ""
+        # and must be enclosed within double quotation marks, such as "example"
+        if len(value) >= 2 and value[0] == '"'\
+                and value[len(value) - 1] == '"':
             value = value[1:-1]
-            value = value.replace('_', ' ')
-            value = value.replace('"', '\"')
+            value = value.replace("_", " ")
         else:
             try:
                 if "." in value:
@@ -144,14 +163,14 @@ class HBNBCommand(cmd.Cmd):
             return value
         else:
             return None
-        
+
     def do_create(self, args):
         """ Create an object of any class"""
         if not args:
             print("** class name missing **")
             return
         elif args not in HBNBCommand.classes:
-        args_array = args.split()
+            args_array = args.split()
         class_name = args_array[0]
         if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
@@ -372,4 +391,3 @@ class HBNBCommand(cmd.Cmd):
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
-
