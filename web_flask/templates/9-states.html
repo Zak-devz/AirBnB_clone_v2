@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HBNB</title>
+  </head>
+
+  <body>
+    {% if with_id %} {% for state_id, state in states.items() %}
+    <h1>States: {{ state.name }}</h1>
+    {% endfor %}
+    <h3>Cities:</h3>
+    {% else %}
+    <h1>States</h1>
+    {% endif %}
+    <ul>
+      {% for state_id, state in states.items()|sort(attribute='1.name') %} {% if
+      with_id %} {% for city in state.cities|sort(attribute='name') %}
+      <li>{{ city.id }}: <b>{{ city.name }}</b></li>
+      {% endfor %} {% else %}
+      <li>{{ state.id }}: <b>{{ state.name }}</b></li>
+      {% endif %} {% endfor %}
+    </ul>
+  </body>
+</html>
