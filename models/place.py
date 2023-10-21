@@ -89,4 +89,3 @@ class Place(BaseModel, Base):
             """Setter document"""
             if isinstance(amenity, Amenity):
                 self.amenity_ids.append(amenity.id)
-
